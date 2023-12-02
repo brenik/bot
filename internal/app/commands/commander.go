@@ -5,6 +5,8 @@ import (
 	"github/brenik/bot/internal/service/product"
 )
 
+var registeredCommands = map[string]func(c *Commander, msg *tgbotapi.Message){}
+
 type Commander struct {
 	bot            *tgbotapi.BotAPI
 	productService *product.Service
@@ -20,25 +22,23 @@ func NewCommander(
 	}
 }
 
-//func (c *Commander) Help(inputMessage *tgbotapi.Message) {
-//	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "/help - help\n /list - lust products")
-//	c.bot.Send(msg)
-//}
+func (c *Commander) HandleUpdate(update tgbotapi.Update) {
+	if update.Message != nil { // If we got a message
 
-//func (c *Commander) List(inputMessage *tgbotapi.Message) {
-//	outputmsg := "Here all the products:\n\n"
-//	products := c.productService.List()
-//	for _, p := range products {
-//		outputmsg += p.Title
-//		outputmsg += "\n"
-//	}
-//	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, outputmsg)
-//	c.bot.Send(msg)
-//}
+		command, ok := registeredCommands[update.Message.Command()]
+		if ok {
+			command(c, update.Message)
+		} else {
+			c.Default(update.Message)
+		}
 
-//func (c *Commander) Default(inputMessage *tgbotapi.Message) {
-//	log.Printf("[%s] %s", inputMessage.From.UserName, inputMessage.Text)
-//	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "You wrote: "+inputMessage.Text)
-//	c.bot.Send(msg)
-//
-//}
+		//switch update.Message.Command() {
+		//case "help":
+		//	c.Help(update.Message)
+		//case "list":
+		//	c.List(update.Message)
+		//default:
+		//	c.Default(update.Message)
+		//}
+	}
+}
