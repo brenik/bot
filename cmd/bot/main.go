@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-
+	//we can load env data by makefile or by godotenv.Load()
 	godotenv.Load()
 	token := os.Getenv("TOKEN")
 	bot, err := tgbotapi.NewBotAPI(token)

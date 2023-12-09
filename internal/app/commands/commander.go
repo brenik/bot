@@ -3,6 +3,7 @@ package commands
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github/brenik/bot/internal/service/product"
+	"log"
 )
 
 var registeredCommands = map[string]func(c *Commander, msg *tgbotapi.Message){}
@@ -25,12 +26,12 @@ func NewCommander(
 func (c *Commander) HandleUpdate(update tgbotapi.Update) {
 	if update.Message != nil { // If we got a message
 
-		//command, ok := registeredCommands[update.Message.Command()]
-		//if ok {
-		//	command(c, update.Message)
-		//} else {
-		//	c.Default(update.Message)
-		//}
+		defer func() {
+
+			if panicValue := recover(); panicValue != nil {
+				log.Printf("recovered from panic: %v", panicValue)
+			}
+		}()
 
 		switch update.Message.Command() {
 		case "help":
